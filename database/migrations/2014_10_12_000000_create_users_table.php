@@ -15,10 +15,19 @@ class CreateUsersTable extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
+
+            $table->string('name')->nullable();
+
+            $table->unsignedBigInteger('application_id');
+
+            $table->string('country_code', 5);
+            $table->string('phone')->unique();
+
             $table->string('password');
+
+            $table->integer('OTP');
+
+            $table->boolean('is_verified')->default(0)->comment('0 = Not yet verified, 1 = Verified');
             $table->rememberToken();
             $table->timestamps();
         });
