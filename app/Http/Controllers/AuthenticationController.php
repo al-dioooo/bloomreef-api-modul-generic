@@ -40,22 +40,28 @@ class AuthenticationController extends Controller
 
         if ($user) {
             if (Hash::check($request->input('password'), $user->password)) {
-                $token = null;
+                if ($user->is_verified == 0) {
+                    return response()->json([
+                        'message' => 'User not verified!',
+                    ], 400);
+                } else {
+                    $token = null;
 
-                if ($request->input('remember_me') === 1) {
-                    $token = bcrypt($this->factory->randomNumber('8', true));
+                    if ($request->input('remember_me') === 1) {
+                        $token = bcrypt($this->factory->randomNumber('8', true));
 
-                    $user->remember_token = $token;
-                    $user->save();
+                        $user->remember_token = $token;
+                        $user->save();
+                    }
+
+                    return response()->json([
+                        'message' => 'Login successfully!',
+                        'data' => [
+                            'user' => $user,
+                            'token' => $token
+                        ]
+                    ]);
                 }
-
-                return response()->json([
-                    'message' => 'Login successfully!',
-                    'data' => [
-                        'user' => $user,
-                        'token' => $token
-                    ]
-                ]);
             } else {
                 return response()->json([
                     'message' => 'Wrong password!',
@@ -68,13 +74,37 @@ class AuthenticationController extends Controller
         }
     }
 
-    public function verifyOtp(Request $request) {
+    public function verifyOtp(Request $request)
+    {
         $request->validate([
+            'phone' => 'required',
             'otp' => 'required'
         ]);
+
+        $user = User::where('phone', $request->input('phone'))->first();
+
+        if ($user) {
+            if ($user->otp == $request->input('otp')) {
+                $user->is_verified = 1;
+                $user->save();
+
+                return response()->json([
+                    'message' => "User verified successfully!",
+                ]);
+            } else {
+                return response()->json([
+                    'message' => "Wrong OTP provided!",
+                ], 400);
+            }
+        } else {
+            return response()->json([
+                'message' => "User with phone number +{$request->input('phone')} not found!",
+            ], 404);
+        }
     }
 
-    public function verifyToken(Request $request) {
+    public function verifyToken(Request $request)
+    {
         $request->validate([
             'token' => 'required|string'
         ]);

@@ -33,7 +33,8 @@ Route::delete('/user/destroy', [UserController::class, 'destroy']);
 
 Route::post('/register', [AuthenticationController::class, 'register']);
 Route::post('/login', [AuthenticationController::class, 'login']);
-Route::post('/verify', [AuthenticationController::class, 'verify']);
+Route::post('/verify/token', [AuthenticationController::class, 'verifyToken']);
+Route::post('/verify/otp', [AuthenticationController::class, 'verifyOtp']);
 
 Route::get('/role', [RoleController::class, 'index']);
 Route::get('/role/{id}', [RoleController::class, 'show']);

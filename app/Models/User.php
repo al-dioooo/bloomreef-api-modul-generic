@@ -20,6 +20,7 @@ class User extends Authenticatable
     protected $fillable = [
         'application_id',
         'name',
+        'country_code',
         'phone',
         'password',
         'otp',
